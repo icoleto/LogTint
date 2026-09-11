@@ -1,24 +1,24 @@
 /**
  * LogTint - ANSI SGR (Select Graphic Rendition) parser.
  *
- * Convierte texto plano que contiene secuencias de escape ANSI
- * (por ejemplo "\x1b[32mtexto\x1b[39m") en HTML seguro con <span>
- * y estilos inline equivalentes.
+ * Converts plain text containing ANSI escape sequences
+ * (e.g. "\x1b[32mtext\x1b[39m") into safe HTML with <span>
+ * elements and equivalent inline styles.
  *
- * Diseño deliberado sin dependencias externas:
- *  - Control total sobre el escapado de HTML (evita XSS).
- *  - Sin build step: se carga tal cual como content script clásico.
+ * Deliberately designed with no external dependencies:
+ *  - Full control over HTML escaping (prevents XSS).
+ *  - No build step: loads as-is, as a classic content script.
  *
- * Expuesto en `window.LogTint.ansiToHtml` y `window.LogTint.containsAnsi`.
+ * Exposed as `window.LogTint.ansiToHtml` and `window.LogTint.containsAnsi`.
  */
 (function (global) {
   "use strict";
 
-  // ESC seguido de "[" + parámetros numéricos separados por ";" + "m" (SGR).
+  // ESC followed by "[" + numeric params separated by ";" + "m" (SGR).
   const SGR_REGEX = /\u001b\[([0-9;]*)m/g;
 
-  // Paleta estándar de 16 colores (compatible con la mayoría de terminales /
-  // librerías como chalk, pino-pretty, winston, nest logger, etc.)
+  // Standard 16-color palette (compatible with most terminals /
+  // libraries such as chalk, pino-pretty, winston, Nest's logger, etc.)
   const BASE16 = [
     "#000000", "#e74c3c", "#2ecc71", "#f1c40f",
     "#3498db", "#9b59b6", "#1abc9c", "#bdc3c7",
@@ -35,7 +35,7 @@
       .replace(/'/g, "&#39;");
   }
 
-  // Convierte un índice 0-255 de la paleta xterm 256 colores a "#rrggbb".
+  // Converts a 0-255 index from the xterm 256-color palette to "#rrggbb".
   function color256(n) {
     n = Number(n);
     if (Number.isNaN(n) || n < 0 || n > 255) return null;
@@ -48,7 +48,7 @@
       const scale = (v) => (v === 0 ? 0 : 55 + v * 40);
       return rgbToHex(scale(r), scale(g), scale(b));
     }
-    // Escala de grises (232-255)
+    // Grayscale ramp (232-255)
     const gray = 8 + (n - 232) * 10;
     return rgbToHex(gray, gray, gray);
   }
@@ -72,8 +72,8 @@
     };
   }
 
-  // Aplica una lista de códigos SGR (ya separados por ";") sobre el estado.
-  // Devuelve el nuevo estado (mutado in-place por simplicidad/rendimiento).
+  // Applies a list of SGR codes (already split by ";") onto the state.
+  // Returns the updated state (mutated in place for simplicity/performance).
   function applySgrCodes(state, codes) {
     for (let i = 0; i < codes.length; i++) {
       const code = codes[i];
@@ -157,7 +157,7 @@
               i += 4;
             }
           }
-          // Códigos desconocidos se ignoran silenciosamente.
+          // Unknown codes are silently ignored.
           break;
       }
     }
@@ -205,9 +205,9 @@
     return SGR_REGEX.test(text);
   }
 
-  // Convierte texto con códigos ANSI SGR en HTML seguro (texto escapado +
-  // <span style="..."> equivalentes). Si el texto no contiene ANSI,
-  // devuelve null para que el llamador pueda evitar tocar el DOM.
+  // Converts text containing ANSI SGR codes into safe HTML (escaped text +
+  // equivalent <span style="..."> markup). If the text contains no ANSI
+  // codes, returns null so the caller can avoid touching the DOM.
   function ansiToHtml(text) {
     if (!containsAnsi(text)) return null;
 

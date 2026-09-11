@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>LogTint - demo</title>
@@ -11,15 +11,15 @@
   </style>
 </head>
 <body>
-  <h1>LogTint - página de prueba</h1>
-  <p>Carga la extensión sin empaquetar desde <code>chrome://extensions</code> y recarga esta página.</p>
+  <h1>LogTint - test page</h1>
+  <p>Load the unpacked extension from <code>chrome://extensions</code> and reload this page.</p>
 
-  <h3>Log estático (ya presente al cargar la página)</h3>
+  <h3>Static log (already present when the page loads)</h3>
   <pre id="staticLog"></pre>
 
-  <h3>Log en streaming (simulado, una línea nueva cada segundo)</h3>
+  <h3>Streaming log (simulated, one new line per second)</h3>
   <pre id="streamLog"></pre>
-  <button id="startStream">Iniciar streaming</button>
+  <button id="startStream">Start streaming</button>
 
   <script>
     const ESC = "\u001b[";
@@ -36,8 +36,8 @@
       setInterval(() => {
         n++;
         const line = document.createTextNode(
-          ESC + "32mLOG" + ESC + "39m línea de streaming #" + n + " " +
-          ESC + "38;5;3m[Worker] " + ESC + "39mprocesando...\n"
+          ESC + "32mLOG" + ESC + "39m streaming line #" + n + " " +
+          ESC + "38;5;3m[Worker] " + ESC + "39mprocessing...\n"
         );
         streamEl.appendChild(line);
       }, 1000);

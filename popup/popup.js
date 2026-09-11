@@ -33,8 +33,8 @@
       }
     }
     hostLabelEl.textContent = currentHost
-      ? `Desactivar en ${currentHost}`
-      : "Desactivar en este sitio";
+      ? `Disable on ${currentHost}`
+      : "Disable on this site";
     loadSettings();
   }
 

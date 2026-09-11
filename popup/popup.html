@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'" />
@@ -13,20 +13,20 @@
   </header>
 
   <label class="row">
-    <span>Activo globalmente</span>
+    <span>Enabled globally</span>
     <input type="checkbox" id="globalEnabled" />
   </label>
 
   <label class="row">
-    <span id="hostLabel">Desactivar en este sitio</span>
+    <span id="hostLabel">Disable on this site</span>
     <input type="checkbox" id="hostDisabled" />
   </label>
 
-  <button id="rescanBtn">Re-escanear página</button>
+  <button id="rescanBtn">Re-scan page</button>
 
   <p class="hint">
-    LogTint colorea automáticamente el texto que contiene códigos ANSI
-    (por ejemplo <code>\u001b[32m</code>) en cualquier página, en tiempo real.
+    LogTint automatically colors text containing ANSI codes
+    (e.g. <code>\u001b[32m</code>) on any page, in real time.
   </p>
 
   <script src="popup.js"></script>

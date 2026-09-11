@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "LogTint",
   "version": "0.1.0",
-  "description": "Colorea en tiempo real los logs que muestran códigos ANSI (colores/formato) en texto plano dentro del navegador.",
+  "description": "Renders ANSI escape codes (colors/formatting) found in plain-text logs as real styled text, live, directly in the browser.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
