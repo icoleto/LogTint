@@ -26,6 +26,12 @@ would render it — automatically, with no configuration required.
 - **Real-time rendering.** A `MutationObserver` watches the page for new or
   changed text nodes (e.g. streaming log output) and re-renders them the
   moment they appear, in addition to an initial scan of existing content.
+- **Ace Editor integration.** Some log viewers use [Ace Editor](https://ace.c9.io/)
+  as a virtualized text widget rather than a plain `<pre>`/`<div>`. Ace
+  re-renders its visible lines from its own internal document model on
+  every scroll/update, which would otherwise overwrite our styled markup.
+  LogTint detects Ace instances and hooks into their `afterRender` event to
+  re-apply coloring right after each of Ace's own repaints.
 - **Full ANSI SGR support.** 16-color, 256-color, and 24-bit truecolor
   foreground/background, plus bold, dim, italic, underline, strikethrough,
   and reverse video.
@@ -103,9 +109,10 @@ LogTint/
 - If a log grows by continuously mutating a single text node (rather than
   appending new nodes), the whole line is reprocessed on each change; very
   large single-line logs could benefit from incremental diffing.
-- Sites using virtualized lists (rendering only visible rows) or closed
-  Shadow DOM may need extra handling — use the popup's **Re-scan page**
-  button as a quick workaround.
+- Ace Editor is explicitly supported (see Features above). Other custom
+  virtualized/canvas-based widgets that manage their own rendering (e.g.
+  Monaco Editor) aren't hooked yet — use the popup's **Re-scan page** button
+  as a quick workaround, or open an issue with the widget in question.
 - Cross-origin iframes aren't processed (a Chrome extension limitation, not
   specific to this codebase).
 

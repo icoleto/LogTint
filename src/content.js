@@ -17,6 +17,10 @@
   let pending = new Set();
   let rafScheduled = false;
 
+  // Editores Ace (u otros widgets con render loop propio) ya enganchados,
+  // para no registrar el listener "afterRender" más de una vez por instancia.
+  const hookedAceEditors = new WeakSet();
+
   function getHostname() {
     try {
       return location.hostname;
@@ -91,6 +95,61 @@
     targets.forEach(scanSubtree);
   }
 
+  // --- Integración con Ace Editor -----------------------------------------
+  //
+  // Ace Editor (y widgets similares con "render loop" propio) gestionan su
+  // propio DOM: virtualizan las líneas visibles y las regeneran desde su
+  // modelo interno de datos en cada repintado (scroll, nuevas líneas, etc.).
+  // Si solo confiamos en MutationObserver, Ace puede pisar nuestro HTML
+  // coloreado en el mismo frame en que lo insertamos, dando la sensación de
+  // que "no pinta". La solución es engancharnos al evento propio de Ace
+  // ("afterRender") y reprocesar justo después de cada uno de sus repintados,
+  // en vez de competir con él.
+  //
+  // Ace expone la instancia del editor como `container.env.editor` sobre el
+  // mismo elemento DOM que se le pasó a `ace.edit(container)`. Como los
+  // content scripts comparten los nodos DOM con la página (solo el ámbito de
+  // JS está aislado), podemos leer esa propiedad sin acceso privilegiado.
+  function tryHookAceEditor(container, attemptsLeft) {
+    if (hookedAceEditors.has(container)) return;
+
+    const env = container.env;
+    const editor = env && env.editor;
+    const renderer = editor && editor.renderer;
+
+    if (!renderer || typeof renderer.on !== "function") {
+      // El editor puede tardar un tick en inicializarse tras insertarse
+      // el contenedor en el DOM; reintentamos unas pocas veces.
+      if (attemptsLeft > 0) {
+        setTimeout(() => tryHookAceEditor(container, attemptsLeft - 1), 150);
+      } else {
+        console.debug("[LogTint] Ace editor detectado pero no se pudo enganchar (env.editor no disponible)", container);
+      }
+      return;
+    }
+
+    hookedAceEditors.add(container);
+    const rescan = () => scanSubtree(container);
+    renderer.on("afterRender", rescan);
+    rescan();
+    console.debug("[LogTint] Ace editor detectado y enganchado a afterRender", container);
+  }
+
+  function hookAceEditorsIn(root) {
+    if (!root || typeof root.querySelectorAll !== "function") {
+      // El propio nodo puede ser el editor (p. ej. cuando se añade
+      // directamente, sin un ancestro común capturado por querySelectorAll).
+      if (root && root.classList && root.classList.contains("ace_editor")) {
+        tryHookAceEditor(root, 10);
+      }
+      return;
+    }
+    if (root.classList && root.classList.contains("ace_editor")) {
+      tryHookAceEditor(root, 10);
+    }
+    root.querySelectorAll(".ace_editor").forEach((el) => tryHookAceEditor(el, 10));
+  }
+
   function scheduleScan(node) {
     pending.add(node);
     if (!rafScheduled) {
@@ -103,7 +162,10 @@
     if (!enabled) return;
     for (const mutation of mutations) {
       if (mutation.type === "childList") {
-        mutation.addedNodes.forEach((node) => scheduleScan(node));
+        mutation.addedNodes.forEach((node) => {
+          scheduleScan(node);
+          if (node.nodeType === Node.ELEMENT_NODE) hookAceEditorsIn(node);
+        });
       } else if (mutation.type === "characterData") {
         scheduleScan(mutation.target);
       }
@@ -124,6 +186,7 @@
 
   function initialScan() {
     scanSubtree(document.body);
+    hookAceEditorsIn(document.body);
   }
 
   function applyEnabledState(nextEnabled) {
