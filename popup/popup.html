@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'" />
+  <title>LogTint</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <img src="../icons/icon32.png" alt="LogTint" />
+    <h1>LogTint</h1>
+  </header>
+
+  <label class="row">
+    <span>Activo globalmente</span>
+    <input type="checkbox" id="globalEnabled" />
+  </label>
+
+  <label class="row">
+    <span id="hostLabel">Desactivar en este sitio</span>
+    <input type="checkbox" id="hostDisabled" />
+  </label>
+
+  <button id="rescanBtn">Re-escanear página</button>
+
+  <p class="hint">
+    LogTint colorea automáticamente el texto que contiene códigos ANSI
+    (por ejemplo <code>\u001b[32m</code>) en cualquier página, en tiempo real.
+  </p>
+
+  <script src="popup.js"></script>
+</body>
+</html>

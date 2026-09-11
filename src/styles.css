@@ -1,0 +1,10 @@
+/* LogTint - estilos mínimos para el contenido pintado en la página. */
+.logtint-line {
+  /* Hereda tipografía del contenedor original (normalmente monospace en
+     visores de logs); no forzamos font-family para no romper el layout. */
+  white-space: inherit;
+}
+
+.logtint-span {
+  /* El color/negrita/etc. se aplica vía estilo inline generado dinámicamente. */
+}
